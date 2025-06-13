@@ -14,7 +14,7 @@ using namespace cv;
 using namespace cv::ml;
 using namespace std;
 
-/// --> 
+
 // label mapping
 map<int, string> trafficSignMapping = {
 	{0, "Speed limit (5km/h)"},
@@ -77,7 +77,7 @@ map<int, string> trafficSignMapping = {
 	{57, "Check"}
 };
 
-// --> 
+
 // retrive mapping
 string getLabelFromValue(float value) {
 	// Round the input value to the nearest integer
@@ -96,7 +96,7 @@ string getLabelFromValue(float value) {
 	}
 }
 
-// --> 
+
 // generate color mask
 vector<Mat> colorMask(Mat src) {
 	Mat hsv, blur;
@@ -129,9 +129,9 @@ vector<Mat> colorMask(Mat src) {
 
 }
 
-// -->
+
 // detect shape
-void detectShape(vector<Point> contour, Mat& show) { //show is mask after shape detection --> no change name --> avoid error
+void detectShape(vector<Point> contour, Mat& show) { //show is the mask after shape detection --> no change name --> avoid error
 	vector<Point> approx;
 	vector<Point> tri;
 	vector<Point> hull;
@@ -168,7 +168,7 @@ void detectShape(vector<Point> contour, Mat& show) { //show is mask after shape 
 
 }
 
-// --> Brandon Kong Chen Wu
+
 // one hot encoding
 void colorFeatureOneHotEncoding(Mat HSV, vector<vector<int>>& colorFeatureOneHot) {
 	vector<Mat> newMask = colorMask(HSV);
@@ -190,7 +190,7 @@ void colorFeatureOneHotEncoding(Mat HSV, vector<vector<int>>& colorFeatureOneHot
 	}
 }
 
-// --> Brandon Kong Chen Wu
+
 // Function to extract HOG features from an image
 void extractHOGFeatures(vector<Mat>& img, vector<vector<float>>& HOG, vector<vector<int>>& colorFeature) {
 
@@ -210,19 +210,19 @@ void extractHOGFeatures(vector<Mat>& img, vector<vector<float>>& HOG, vector<vec
 	}
 }
 
-// --> 
+
 // convertion for classification
 void convertVectortoMatrix(vector<vector<float>>& HOG, Mat& Mat) {
 	int descriptor_size = HOG[0].size();
 
-	for (int i = 0; i < HOG.size(); i++) {
-		for (int j = 0; j < descriptor_size; j++) {
+	for (int i = 0;i < HOG.size();i++) {
+		for (int j = 0;j < descriptor_size;j++) {
 			Mat.at<float>(i, j) = HOG[i][j];
 		}
 	}
 }
 
-// --> Brandon Kong Chen Wu
+
 // SVM
 void trainSVM(vector<int>& trainLabels, Mat& trainMat, vector<Mat> images) {
 
@@ -235,7 +235,7 @@ void trainSVM(vector<int>& trainLabels, Mat& trainMat, vector<Mat> images) {
 	svm->save("traffic_sign_svm.xml"); // Save trained model
 }
 
-// --> Ting Jun Jing
+
 // Random Forest
 void trainRandomForest(vector<int>& trainLabels, Mat& trainMat, vector<Mat> images) {
 
@@ -254,7 +254,7 @@ void trainRandomForest(vector<int>& trainLabels, Mat& trainMat, vector<Mat> imag
 }
 
 
-// --> Brandon Kong Chen Wu
+
 // model evaluation
 void evaluate(Mat& response, float& count, float& accuracy, vector<int>& testLabels)
 {
@@ -309,24 +309,18 @@ void evaluate(Mat& response, float& count, float& accuracy, vector<int>& testLab
 
 }
 
-// --> 
+
 // result visualization
 void visualize(Mat response, vector<Mat> oriImages, vector<Mat> segmentedImages, vector<Mat> testImages, vector<vector<float>>& HOG) {
 	///////////////// Window
-	for (int i = 0; i < response.total(); i++) {
+	for (int i = 0; i < response.total();i++) {
 		int const	noOfImagePerCol = 1, noOfImagePerRow = 2;
 		Mat			detailResultWin, win[noOfImagePerRow * noOfImagePerCol], legend[noOfImagePerRow * noOfImagePerCol];
 		createWindowPartition(oriImages[i], detailResultWin, win, legend, noOfImagePerCol, noOfImagePerRow);
 
 		putText(legend[0], "Original", Point(5, 11), 1, 1, Scalar(250, 250, 250), 1);
 
-		//putText(legend[2], "Shape filter", Point(5, 11), 1, 1, Scalar(250, 250, 250), 1);
-		//putText(legend[3], "Segmented", Point(5, 11), 1, 1, Scalar(250, 250, 250), 1);
-		//resize(oriImages[i], temp, Size(100, 100));
-		//resize(win[0], win[0], temp.size());
-
 		oriImages[i].copyTo(win[0]);
-		//resize(win[0], win[0], Size(100, 100));
 
 		putText(legend[1], getLabelFromValue(response.at<float>(i, 0)), Point(5, 11), 1, 1, Scalar(250, 250, 250), 1);
 
@@ -369,8 +363,8 @@ void visualize(Mat response, vector<Mat> oriImages, vector<Mat> segmentedImages,
 }
 
 
+// Process Flow
 int main(int argc, char** argv) {
-
 	Mat			src;
 	Mat			croppedSign, resizedSign;
 	char		str[256];
@@ -378,7 +372,7 @@ int main(int argc, char** argv) {
 	int const	MAXfPt = 200;
 	int			t1, t2, t3, t4;
 	RNG			rng(0);
-	String		imgPattern("Inputs/Traffic signs/test/*.png"); //test
+	String		imgPattern("Inputs/Traffic signs/signs/*.png"); //test
 	String		imgPatternTrain("Inputs/Traffic signs/train/*.png");
 	vector<string>	imageNames;
 	vector<string>	imageNamesTrain;
@@ -609,14 +603,14 @@ int main(int argc, char** argv) {
 					cerr << "Error: Could not load the SVM model from file!" << endl;
 					return -1;
 				}
-				svm->predict(testMat, response);
+					svm->predict(testMat, response);
 			}
 			else { // rf
 				if (rf->empty()) {
 					cerr << "Error: Could not load the RF model from file!" << endl;
 					return -1;
 				}
-				rf->predict(testMat, response);
+					rf->predict(testMat, response);
 
 			}
 
